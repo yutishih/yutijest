@@ -1,0 +1,56 @@
+body {
+    margin: 0;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6rem;
+    min-height: 100vh;
+    background-color: #dadada;
+}
+
+.component-wrap {
+    max-width: 400px;
+    width: 100%;
+    border: 1px solid #111;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 10px;
+}
+
+.component-wrap .form-element {
+    box-sizing: border-box;
+    width: 400px;
+    padding: 10px;
+
+}
+
+.component-wrap input {
+    max-width: 400px;
+    width: 100%;
+    font-size: 18px;
+    background: none;
+    border: 2px solid #646464;
+    outline: none;
+    padding: 15px;
+    margin: 5px 0;
+    box-shadow: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.component-wrap button {
+    font-size: 18px;
+    margin: 5px 0;
+    border: 2px solid #646464;
+    outline: none;
+}
+
+.component-wrap button:hover {
+    color: #fff;
+    background-color: #111;
+}
