@@ -4,69 +4,57 @@ import "@testing-library/jest-dom/extend-expect";
 import axios from "axios";
 import RandomUserComponent from "../Components/RandomUserComponent";
 
+//We mock Axios using jest.mock('axios') so that we can control its behavior in the tests.
 jest.mock("axios");
-const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-describe("RandomUserComponent", () => {
-  beforeEach(() => {
-    mockedAxios.get.mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(() => resolve({ data: { results: [] } }), 300)
-        )
-    );
+describe("RandomUserComponent Component", () => {
+  //The first test checks if the component displays "Loading..." initially.
+  it("renders loading state initially", () => {
+    render(<RandomUserComponent />);
+    expect(screen.getByText("Loading...")).toBeInTheDocument();
   });
 
-  it("renders loading state initially", async () => {
-    await act(async () => {
-      render(<RandomUserComponent />);
+  //The second test mocks a successful API response and checks if the component renders the user data correctly.
+  it("renders user data when API call is successful", async () => {
+    // Mock successful API response
+    (axios.get as jest.Mock).mockResolvedValue({
+      data: {
+        results: [
+          {
+            name: { title: "Mr", first: "John", last: "Doe" },
+            email: "john.doe@example.com",
+            phone: "123-456-7890",
+            picture: { large: "https://example.com/johndoe.jpg" },
+          },
+        ],
+      },
     });
-    const loadingElement = await screen.findByText("Loading...");
-    expect(loadingElement).toBeInTheDocument();
-  });
+    render(<RandomUserComponent />);
 
-  it("renders random user data after fetching", async () => {
-    const fakeUserData = {
-      name: { title: "Mr", first: "John", last: "Doe" },
-      email: "john.doe@example.com",
-      phone: "123-456-789",
-      picture: { large: "https://example.com/pic.jpg" },
-    };
-
-    // mockedAxios.get.mockResolvedValueOnce({
-    //   data: { results: [fakeUserData] },
-    // });
-    mockedAxios.get.mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(() => resolve({ data: { results: [fakeUserData] } }), 300)
-        )
-    );
-
-    await act(async () => {
-      render(<RandomUserComponent />);
-      await waitFor(async () => {
-        screen.debug(); //debug line
-        expect(screen.getByText("Mr John Doe")).toBeInTheDocument();
-        expect(screen.getByText("Phone: 123-456-789")).toBeInTheDocument();
-        expect(
-          screen.getByText("Email: john.doe@example.com")
-        ).toBeInTheDocument();
-      });
+    //Async Handling: We use waitFor from @testing-library/react to wait for the component to re-render after the mock API call is resolved or rejected.
+    await waitFor(() => {
+      //Assertions: We use expect along with toBeInTheDocument() to check if the expected elements are present in the document.
+      expect(screen.getByText("Mr John Doe")).toBeInTheDocument();
+      expect(screen.getByText("Phone: 123-456-7890")).toBeInTheDocument();
+      expect(
+        screen.getByText("Email: john.doe@example.com")
+      ).toBeInTheDocument();
+      expect(screen.getByAltText("John's profile")).toBeInTheDocument();
     });
   });
 
-  it("renders an error message when the fetch fails", async () => {
-    mockedAxios.get.mockRejectedValueOnce(new Error("An error occurred"));
+  //The third test mocks a failed API response and checks if the component displays an error message.
+  it("renders error message when API call fails", async () => {
+    // Mock failed API response
+    (axios.get as jest.Mock).mockRejectedValue(
+      new Error("An API error occurred")
+    );
 
-    await act(async () => {
-      render(<RandomUserComponent />);
-      await waitFor(async () => {
-        const errorElement = await screen.findByText(
-          /Error: An error occurred/i
-        );
-        expect(errorElement).toBeInTheDocument();
-      });
+    render(<RandomUserComponent />);
+
+    //Using a Regular Expression, otherwise the test will fail
+    await waitFor(() => {
+      expect(screen.getByText(/An API error occurred/)).toBeInTheDocument();
     });
   });
 });

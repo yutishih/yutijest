@@ -26,14 +26,10 @@ const RandomUserComponent: React.FC = () => {
       try {
         const response = await axios.get("https://randomuser.me/api/");
         const userData = response.data.results[0];
-        console.log("Fetched data:", userData); // Debugging line
-        console.log(userData); // Debugging line
         setUser(userData);
       } catch (err) {
-        console.log("Error:", err); // Debugging line
         setError(err);
       } finally {
-        console.log("Setting loading to false"); // Debugging line
         setLoading(false);
       }
     };
